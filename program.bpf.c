@@ -15,6 +15,7 @@
  */
 struct gadget_key {
 	__u32 process_id;
+	gadget_syscall syscall_raw;
 };
 
 struct gadget_value {
@@ -54,14 +55,15 @@ GADGET_MAPITER(calls, gadget_counts);
  * Update README requirements; if map fields change, run make metadata
  * and review gadget.yaml.
  */
-SEC("tracepoint/syscalls/sys_enter_chdir")
-int gadget_count_chdir(struct trace_event_raw_sys_enter *ctx)
+SEC("tracepoint/raw_syscalls/sys_enter")
+int gadget_count_syscall(struct trace_event_raw_sys_enter *ctx)
 {
 	if (gadget_should_discard_data_current())
 		return 0;
 
 	struct gadget_key key = {
 	    .process_id = bpf_get_current_pid_tgid() >> 32,
+		.syscall_raw = ctx->id,
 	};
 	struct gadget_value *value = bpf_map_lookup_elem(&gadget_counts, &key);
 	if (value) {
@@ -76,6 +78,7 @@ int gadget_count_chdir(struct trace_event_raw_sys_enter *ctx)
 	 */
 	gadget_process_populate(&initial.proc);
 	initial.calls = 1;
+	initial.proc.tid = 0;
 	long err =
 	    bpf_map_update_elem(&gadget_counts, &key, &initial, BPF_NOEXIST);
 	if (!err)
@@ -94,7 +97,7 @@ int gadget_count_chdir(struct trace_event_raw_sys_enter *ctx)
 	}
 	/* Keep failures visible (including a full map); inspect --trace-pipe.
 	 */
-	bpf_printk("gadget: chdir count dropped, map update error %ld", err);
+	bpf_printk("gadget: top_syscall count dropped, map update error %ld", err);
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 name: "top_syscall"
-description: Periodically report chdir syscall counts by process
+description: Periodically report syscall counts by process
 homepageURL: https://github.com/mqasimsarfraz/top_syscall
 documentationURL: https://github.com/mqasimsarfraz/top_syscall#readme
 sourceURL: https://github.com/mqasimsarfraz/top_syscall
