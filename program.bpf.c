@@ -63,7 +63,7 @@ int gadget_count_syscall(struct trace_event_raw_sys_enter *ctx)
 
 	struct gadget_key key = {
 	    .process_id = bpf_get_current_pid_tgid() >> 32,
-		.syscall_raw = ctx->id,
+	    .syscall_raw = ctx->id,
 	};
 	struct gadget_value *value = bpf_map_lookup_elem(&gadget_counts, &key);
 	if (value) {
@@ -97,7 +97,8 @@ int gadget_count_syscall(struct trace_event_raw_sys_enter *ctx)
 	}
 	/* Keep failures visible (including a full map); inspect --trace-pipe.
 	 */
-	bpf_printk("gadget: top_syscall count dropped, map update error %ld", err);
+	bpf_printk("gadget: top_syscall count dropped, map update error %ld",
+		   err);
 	return 0;
 }
 
